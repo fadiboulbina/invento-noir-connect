@@ -7,6 +7,15 @@ export interface Translation {
   shippers: string;
   priceComparison: string;
   
+  // Authentication
+  signIn: string;
+  signUp: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  fullName: string;
+  authentication: string;
+  
   // Common Actions
   add: string;
   edit: string;
@@ -83,6 +92,15 @@ export const translations: Record<string, Translation> = {
     shippers: "Suppliers",
     priceComparison: "Price Comparison",
     
+    // Authentication
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    fullName: "Full Name",
+    authentication: "Authentication",
+    
     // Common Actions
     add: "Add",
     edit: "Edit",
@@ -158,6 +176,15 @@ export const translations: Record<string, Translation> = {
     shippers: "Fournisseurs",
     priceComparison: "Comparaison de prix",
     
+    // Authentication
+    signIn: "Connexion",
+    signUp: "Inscription",
+    email: "Email",
+    password: "Mot de passe",
+    confirmPassword: "Confirmer le mot de passe",
+    fullName: "Nom complet",
+    authentication: "Authentification",
+    
     // Common Actions
     add: "Ajouter",
     edit: "Modifier",
@@ -232,6 +259,15 @@ export const translations: Record<string, Translation> = {
     orders: "الطلبات",
     shippers: "الموردون",
     priceComparison: "مقارنة الأسعار",
+    
+    // Authentication
+    signIn: "تسجيل الدخول",
+    signUp: "إنشاء حساب",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    confirmPassword: "تأكيد كلمة المرور",
+    fullName: "الاسم الكامل",
+    authentication: "المصادقة",
     
     // Common Actions
     add: "إضافة",

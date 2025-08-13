@@ -7,7 +7,9 @@ import {
   Truck,
   BarChart3,
   ChevronRight,
-  Settings
+  Settings,
+  User,
+  LogOut
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -24,6 +26,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const menuItems = [
   {
@@ -61,6 +64,7 @@ const menuItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const { t, isRTL } = useLanguage();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   
@@ -143,9 +147,33 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <div className={`flex items-center gap-3 px-3 py-2 text-sidebar-foreground ${collapsed ? 'justify-center' : ''}`}>
+                <User className="h-5 w-5" />
+                {!collapsed && (
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">{profile?.full_name || 'User'}</span>
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {profile?.role || 'readonly'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <div className={`flex items-center gap-3 px-3 py-2 text-sidebar-foreground ${collapsed ? 'justify-center' : ''}`}>
                 <Settings className="h-5 w-5" />
                 {!collapsed && <span className="font-medium">Settings</span>}
               </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={signOut}
+              className={`flex items-center gap-3 px-3 py-2 text-sidebar-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer ${collapsed ? 'justify-center' : ''}`}
+            >
+              <LogOut className="h-5 w-5" />
+              {!collapsed && <span className="font-medium">Logout</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
