@@ -1,38 +1,80 @@
-import React, { useState } from 'react';
-import { Package, Plus, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, Plus, Search, Filter, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Product {
   id: string;
-  name: string;
-  category: string;
-  buyingPrice: number;
-  sellingPrice: number;
-  stock: number;
-  lowStockThreshold: number;
+  product_id: string;
+  product_name: string;
+  category_id?: string;
+  buying_price: number;
+  selling_price: number;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  notes?: string;
+  image_url?: string;
 }
 
-// Mock data
-const mockProducts: Product[] = [
-  { id: '1', name: 'Samsung Galaxy A54', category: 'Smartphones', buyingPrice: 40000, sellingPrice: 45000, stock: 25, lowStockThreshold: 10 },
-  { id: '2', name: 'iPhone 15', category: 'Smartphones', buyingPrice: 160000, sellingPrice: 180000, stock: 5, lowStockThreshold: 10 },
-  { id: '3', name: 'Dell Inspiron 15', category: 'Laptops', buyingPrice: 85000, sellingPrice: 95000, stock: 12, lowStockThreshold: 5 },
-  { id: '4', name: 'Sony WH-1000XM5', category: 'Audio', buyingPrice: 12000, sellingPrice: 15000, stock: 3, lowStockThreshold: 5 },
-  { id: '5', name: 'iPad Air 5th Gen', category: 'Tablets', buyingPrice: 70000, sellingPrice: 75000, stock: 18, lowStockThreshold: 8 },
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 export const Products: React.FC = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [products] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState({
+    product_id: '',
+    product_name: '',
+    category_id: '',
+    buying_price: '',
+    selling_price: '',
+    stock_quantity: '',
+    low_stock_threshold: '10',
+    notes: ''
+  });
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      toast({
+        title: t.error,
+        description: 'Failed to fetch products',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatCurrency = (amount: number) => {
@@ -83,18 +125,18 @@ export const Products: React.FC = () => {
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredProducts.map((product) => {
-          const stockStatus = getStockStatus(product.stock, product.lowStockThreshold);
-          const profit = product.sellingPrice - product.buyingPrice;
-          const profitMargin = ((profit / product.sellingPrice) * 100).toFixed(1);
+          const stockStatus = getStockStatus(product.stock_quantity, product.low_stock_threshold);
+          const profit = product.selling_price - product.buying_price;
+          const profitMargin = ((profit / product.selling_price) * 100).toFixed(1);
           
           return (
             <Card key={product.id} className="glass-card hover-lift">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg">{product.name}</CardTitle>
+                    <CardTitle className="text-lg">{product.product_name}</CardTitle>
                     <Badge variant="secondary" className="text-xs">
-                      {product.category}
+                      {product.product_id}
                     </Badge>
                   </div>
                   <Package className="h-5 w-5 text-muted-foreground" />
@@ -105,11 +147,11 @@ export const Products: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t.buyingPrice}:</span>
-                    <span className="font-medium">{formatCurrency(product.buyingPrice)}</span>
+                    <span className="font-medium">{formatCurrency(product.buying_price)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t.sellingPrice}:</span>
-                    <span className="font-medium">{formatCurrency(product.sellingPrice)}</span>
+                    <span className="font-medium">{formatCurrency(product.selling_price)}</span>
                   </div>
                   <div className="flex justify-between text-sm border-t pt-2">
                     <span className="text-muted-foreground">Profit:</span>
@@ -128,7 +170,7 @@ export const Products: React.FC = () => {
                     </Badge>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-bold text-foreground">{product.stock}</span>
+                    <span className="text-lg font-bold text-foreground">{product.stock_quantity}</span>
                     <span className="text-sm text-muted-foreground ml-1">units</span>
                   </div>
                 </div>
@@ -159,7 +201,7 @@ export const Products: React.FC = () => {
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-warning">
-              {filteredProducts.filter(p => p.stock <= p.lowStockThreshold).length}
+              {filteredProducts.filter(p => p.stock_quantity <= p.low_stock_threshold).length}
             </div>
             <div className="text-sm text-muted-foreground">{t.lowStock}</div>
           </CardContent>
@@ -167,7 +209,7 @@ export const Products: React.FC = () => {
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-foreground">
-              {formatCurrency(filteredProducts.reduce((sum, p) => sum + (p.stock * p.sellingPrice), 0))}
+              {formatCurrency(filteredProducts.reduce((sum, p) => sum + (p.stock_quantity * p.selling_price), 0))}
             </div>
             <div className="text-sm text-muted-foreground">Total Value</div>
           </CardContent>
@@ -175,7 +217,7 @@ export const Products: React.FC = () => {
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-success">
-              {formatCurrency(filteredProducts.reduce((sum, p) => sum + ((p.sellingPrice - p.buyingPrice) * p.stock), 0))}
+              {formatCurrency(filteredProducts.reduce((sum, p) => sum + ((p.selling_price - p.buying_price) * p.stock_quantity), 0))}
             </div>
             <div className="text-sm text-muted-foreground">Potential Profit</div>
           </CardContent>
