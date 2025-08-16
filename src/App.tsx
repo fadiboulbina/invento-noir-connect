@@ -12,7 +12,7 @@ import { Products } from "@/pages/Products";
 import { Customers } from "@/pages/Customers";
 import { Orders } from "@/pages/Orders";
 import { Shippers } from "@/pages/Shippers";
-import { PriceComparison } from "@/pages/PriceComparison";
+
 import { Auth } from "@/pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -39,7 +39,7 @@ const App = () => (
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/orders" element={<Orders />} />
                         <Route path="/shippers" element={<Shippers />} />
-                        <Route path="/price-comparison" element={<PriceComparison />} />
+                        
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Layout>

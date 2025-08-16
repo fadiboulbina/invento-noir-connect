@@ -221,44 +221,37 @@ export type Database = {
           },
         ]
       }
-      product_price_comparisons: {
+      product_reseller_prices: {
         Row: {
-          currency: string | null
+          created_at: string
           id: string
-          last_updated: string | null
-          price: number
-          product_id: string | null
-          shipper_id: string | null
+          product_id: string
+          reseller_name: string
+          reseller_price: number
+          updated_at: string
         }
         Insert: {
-          currency?: string | null
+          created_at?: string
           id?: string
-          last_updated?: string | null
-          price: number
-          product_id?: string | null
-          shipper_id?: string | null
+          product_id: string
+          reseller_name: string
+          reseller_price: number
+          updated_at?: string
         }
         Update: {
-          currency?: string | null
+          created_at?: string
           id?: string
-          last_updated?: string | null
-          price?: number
-          product_id?: string | null
-          shipper_id?: string | null
+          product_id?: string
+          reseller_name?: string
+          reseller_price?: number
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "product_price_comparisons_product_id_fkey"
+            foreignKeyName: "product_reseller_prices_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_price_comparisons_shipper_id_fkey"
-            columns: ["shipper_id"]
-            isOneToOne: false
-            referencedRelation: "shippers"
             referencedColumns: ["id"]
           },
         ]
