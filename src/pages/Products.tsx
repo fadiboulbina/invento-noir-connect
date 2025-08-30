@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Plus, Search, Filter, Edit, Trash2, TrendingUp, Award } from 'lucide-react';
+import { Package, Plus, Search, Filter, Edit, Trash2, TrendingUp, Award, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ProductDialog } from '@/components/ProductDialog';
 
 interface ResellerPrice {
   id: string;
@@ -49,16 +46,6 @@ export const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({
-    product_id: '',
-    product_name: '',
-    category_id: '',
-    buying_price: '',
-    selling_price: '',
-    stock_quantity: '',
-    low_stock_threshold: '10',
-    notes: ''
-  });
   const [resellerFormData, setResellerFormData] = useState({
     reseller_name: '',
     reseller_price: ''
@@ -89,9 +76,56 @@ export const Products: React.FC = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setDialogOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
+
+      if (error) throw error;
+      
+      fetchProducts();
+      toast({ title: t.success, description: 'Product deleted successfully' });
+    } catch (error) {
+      toast({
+        title: t.error,
+        description: 'Failed to delete product',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const filteredProducts = products.filter(product =>
     product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -203,9 +237,9 @@ export const Products: React.FC = () => {
           <h1 className="text-3xl font-bold gradient-text">{t.products}</h1>
           <p className="text-muted-foreground">Manage your product inventory with integrated price comparison</p>
         </div>
-        <Button className="btn-gradient gap-2">
+        <Button onClick={handleAddProduct} className="btn-gradient gap-2">
           <Plus className="h-4 w-4" />
-          {t.add} {t.productName}
+          {t.addProduct}
         </Button>
       </div>
 
@@ -238,11 +272,20 @@ export const Products: React.FC = () => {
             <Card key={product.id} className="glass-card hover-lift rounded-xl shadow-soft">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <CardTitle className="text-xl">{product.product_name}</CardTitle>
-                    <Badge variant="secondary" className="text-sm rounded-lg">
-                      ID: {product.product_id}
-                    </Badge>
+                  <div className="flex gap-4">
+                    {product.image_url && (
+                      <img 
+                        src={product.image_url} 
+                        alt={product.product_name}
+                        className="w-16 h-16 object-cover rounded-lg border-2 border-border"
+                      />
+                    )}
+                    <div className="space-y-2">
+                      <CardTitle className="text-xl">{product.product_name}</CardTitle>
+                      <Badge variant="secondary" className="text-sm rounded-lg">
+                        ID: {product.product_id}
+                      </Badge>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Package className="h-5 w-5 text-muted-foreground" />
@@ -434,12 +477,30 @@ export const Products: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1 hover:bg-[hsl(var(--primary)/0.1)] hover:text-[hsl(var(--primary))] rounded-xl">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 hover:bg-[hsl(var(--primary)/0.1)] hover:text-[hsl(var(--primary))] rounded-xl"
+                    onClick={() => handleEditProduct(product)}
+                  >
                     <Edit className="h-4 w-4 mr-2" />
                     {t.edit}
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 hover:bg-orange-500/10 hover:text-orange-500 rounded-xl">
-                    View Details
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 hover:bg-orange-500/10 hover:text-orange-500 rounded-xl"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    {t.viewDetails}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hover:bg-[hsl(var(--destructive)/0.1)] hover:text-[hsl(var(--destructive))] rounded-xl"
+                    onClick={() => handleDeleteProduct(product)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>

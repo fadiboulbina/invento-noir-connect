@@ -38,12 +38,19 @@ export interface Translation {
   
   // Products
   productName: string;
+  productImage: string;
   category: string;
   buyingPrice: string;
   sellingPrice: string;
   stockQuantity: string;
+  lowStockThreshold: string;
   notes: string;
   lowStockAlert: string;
+  addProduct: string;
+  editProduct: string;
+  viewDetails: string;
+  uploadImage: string;
+  removeImage: string;
   
   // Customers
   customerName: string;
@@ -123,12 +130,19 @@ export const translations: Record<string, Translation> = {
     
     // Products
     productName: "Product Name",
+    productImage: "Product Image",
     category: "Category",
     buyingPrice: "Buying Price",
     sellingPrice: "Selling Price",
     stockQuantity: "Stock Quantity",
+    lowStockThreshold: "Low Stock Threshold",
     notes: "Notes",
     lowStockAlert: "Low Stock Alert",
+    addProduct: "Add Product",
+    editProduct: "Edit Product",
+    viewDetails: "View Details",
+    uploadImage: "Upload Image",
+    removeImage: "Remove Image",
     
     // Customers
     customerName: "Customer Name",
@@ -207,12 +221,19 @@ export const translations: Record<string, Translation> = {
     
     // Products
     productName: "Nom du produit",
+    productImage: "Image du produit",
     category: "Catégorie",
     buyingPrice: "Prix d'achat",
     sellingPrice: "Prix de vente",
     stockQuantity: "Quantité en stock",
+    lowStockThreshold: "Seuil de stock faible",
     notes: "Notes",
     lowStockAlert: "Alerte stock faible",
+    addProduct: "Ajouter un produit",
+    editProduct: "Modifier le produit",
+    viewDetails: "Voir les détails",
+    uploadImage: "Télécharger une image",
+    removeImage: "Supprimer l'image",
     
     // Customers
     customerName: "Nom du client",
@@ -291,12 +312,19 @@ export const translations: Record<string, Translation> = {
     
     // Products
     productName: "اسم المنتج",
+    productImage: "صورة المنتج",
     category: "الفئة",
     buyingPrice: "سعر الشراء",
     sellingPrice: "سعر البيع",
     stockQuantity: "كمية المخزون",
+    lowStockThreshold: "حد المخزون المنخفض",
     notes: "ملاحظات",
     lowStockAlert: "تنبيه مخزون منخفض",
+    addProduct: "إضافة منتج",
+    editProduct: "تعديل المنتج",
+    viewDetails: "عرض التفاصيل",
+    uploadImage: "رفع صورة",
+    removeImage: "إزالة الصورة",
     
     // Customers
     customerName: "اسم العميل",

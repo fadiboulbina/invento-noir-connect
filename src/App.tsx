@@ -12,6 +12,9 @@ import { Products } from "@/pages/Products";
 import { Customers } from "@/pages/Customers";
 import { Orders } from "@/pages/Orders";
 import { Shippers } from "@/pages/Shippers";
+import { Store } from "@/pages/Store";
+import { StoreProducts } from "@/pages/StoreProducts";
+import { StoreContact } from "@/pages/StoreContact";
 
 import { Auth } from "@/pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -28,6 +31,13 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              
+              {/* Customer Store Routes */}
+              <Route path="/store" element={<Store />} />
+              <Route path="/store/products" element={<StoreProducts />} />
+              <Route path="/store/contact" element={<StoreContact />} />
+              
+              {/* Admin Dashboard Routes */}
               <Route 
                 path="/*" 
                 element={
