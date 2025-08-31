@@ -15,6 +15,10 @@ import { Shippers } from "@/pages/Shippers";
 import { Store } from "@/pages/Store";
 import { StoreProducts } from "@/pages/StoreProducts";
 import { StoreContact } from "@/pages/StoreContact";
+import { ProductDetail } from "@/pages/ProductDetail";
+import { Checkout } from "@/pages/Checkout";
+import { OrderSuccess } from "@/pages/OrderSuccess";
+import { About } from "@/pages/About";
 
 import { Auth } from "@/pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -35,7 +39,11 @@ const App = () => (
               {/* Customer Store Routes */}
               <Route path="/store" element={<Store />} />
               <Route path="/store/products" element={<StoreProducts />} />
+              <Route path="/store/product/:id" element={<ProductDetail />} />
+              <Route path="/store/checkout" element={<Checkout />} />
+              <Route path="/store/order-success" element={<OrderSuccess />} />
               <Route path="/store/contact" element={<StoreContact />} />
+              <Route path="/store/about" element={<About />} />
               
               {/* Admin Dashboard Routes */}
               <Route 

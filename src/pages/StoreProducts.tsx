@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { ShoppingCartButton } from '@/components/ShoppingCart';
+import { useCart } from '@/contexts/CartContext';
 
 interface Product {
   id: string;
@@ -25,6 +27,7 @@ export const StoreProducts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceFilter, setPriceFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchProducts();
@@ -112,9 +115,7 @@ export const StoreProducts: React.FC = () => {
               <Button variant="outline" size="sm">
                 <Heart className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm">
-                <ShoppingCart className="h-4 w-4" />
-              </Button>
+              <ShoppingCartButton />
             </div>
           </div>
         </div>
@@ -182,33 +183,37 @@ export const StoreProducts: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <Card key={product.id} className="glass-card hover-lift group cursor-pointer">
-                  <div className="relative overflow-hidden rounded-t-lg">
-                    {product.image_url ? (
-                      <img 
-                        src={product.image_url} 
-                        alt={product.product_name}
-                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-64 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <Phone className="h-16 w-16 text-muted-foreground" />
-                      </div>
-                    )}
-                    <Badge className="absolute top-3 right-3 bg-success text-success-foreground">
-                      متوفر
-                    </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Link to={`/store/product/${product.id}`}>
+                    <div className="relative overflow-hidden rounded-t-lg">
+                      {product.image_url ? (
+                        <img 
+                          src={product.image_url} 
+                          alt={product.product_name}
+                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-64 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <Phone className="h-16 w-16 text-muted-foreground" />
+                        </div>
+                      )}
+                      <Badge className="absolute top-3 right-3 bg-success text-success-foreground">
+                        متوفر
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm"
+                      >
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Link>
                   <CardContent className="p-4">
-                    <h4 className="font-semibold text-lg mb-2 line-clamp-2 text-right">
-                      {product.product_name}
-                    </h4>
+                    <Link to={`/store/product/${product.id}`}>
+                      <h4 className="font-semibold text-lg mb-2 line-clamp-2 text-right hover:text-primary transition-colors">
+                        {product.product_name}
+                      </h4>
+                    </Link>
                     
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-1 text-yellow-500">
@@ -231,13 +236,25 @@ export const StoreProducts: React.FC = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button className="flex-1 btn-gradient">
+                      <Button 
+                        className="flex-1 btn-gradient"
+                        onClick={() => addToCart({
+                          id: product.id,
+                          product_id: product.product_id,
+                          product_name: product.product_name,
+                          selling_price: product.selling_price,
+                          image_url: product.image_url,
+                          stock_quantity: product.stock_quantity,
+                        })}
+                      >
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         أضف للسلة
                       </Button>
-                      <Button variant="outline" className="px-3">
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <Link to={`/store/product/${product.id}`}>
+                        <Button variant="outline" className="px-3">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>

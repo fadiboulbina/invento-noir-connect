@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
+import { ShoppingCartButton } from '@/components/ShoppingCart';
+import { useCart } from '@/contexts/CartContext';
+import { Link } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -20,6 +23,7 @@ export const Store: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchProducts();
@@ -71,9 +75,7 @@ export const Store: React.FC = () => {
               <Button variant="outline" size="sm">
                 <Heart className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm">
-                <ShoppingCart className="h-4 w-4" />
-              </Button>
+              <ShoppingCartButton />
             </div>
           </div>
         </div>
@@ -92,12 +94,16 @@ export const Store: React.FC = () => {
             جودة عالية، ضمان أكيد، وخدمة ممتازة!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="btn-gradient px-8 py-3 text-lg">
-              🛍️ ابدأ التسوق
-            </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3 text-lg">
-              📞 اتصل بنا
-            </Button>
+            <Link to="/store/products">
+              <Button size="lg" className="btn-gradient px-8 py-3 text-lg">
+                🛍️ ابدأ التسوق
+              </Button>
+            </Link>
+            <Link to="/store/contact">
+              <Button size="lg" variant="outline" className="px-8 py-3 text-lg">
+                📞 اتصل بنا
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -126,25 +132,29 @@ export const Store: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
                 <Card key={product.id} className="glass-card hover-lift group cursor-pointer">
-                  <div className="relative overflow-hidden rounded-t-lg">
-                    {product.image_url ? (
-                      <img 
-                        src={product.image_url} 
-                        alt={product.product_name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <Phone className="h-12 w-12 text-muted-foreground" />
-                      </div>
-                    )}
-                    <Badge className="absolute top-2 right-2 bg-success text-success-foreground">
-                      متوفر
-                    </Badge>
-                  </div>
+                  <Link to={`/store/product/${product.id}`}>
+                    <div className="relative overflow-hidden rounded-t-lg">
+                      {product.image_url ? (
+                        <img 
+                          src={product.image_url} 
+                          alt={product.product_name}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <Phone className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                      )}
+                      <Badge className="absolute top-2 right-2 bg-success text-success-foreground">
+                        متوفر
+                      </Badge>
+                    </div>
+                  </Link>
                   <CardContent className="p-4">
-                    <h4 className="font-semibold text-lg mb-2 line-clamp-2">{product.product_name}</h4>
-                    <div className="flex items-center justify-between">
+                    <Link to={`/store/product/${product.id}`}>
+                      <h4 className="font-semibold text-lg mb-2 line-clamp-2 hover:text-primary transition-colors">{product.product_name}</h4>
+                    </Link>
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-2xl font-bold text-primary">
                         {formatCurrency(product.selling_price)}
                       </span>
@@ -156,7 +166,17 @@ export const Store: React.FC = () => {
                         <Star className="h-4 w-4" />
                       </div>
                     </div>
-                    <Button className="w-full mt-3 btn-gradient">
+                    <Button 
+                      className="w-full btn-gradient"
+                      onClick={() => addToCart({
+                        id: product.id,
+                        product_id: product.product_id,
+                        product_name: product.product_name,
+                        selling_price: product.selling_price,
+                        image_url: product.image_url,
+                        stock_quantity: product.stock_quantity,
+                      })}
+                    >
                       أضف للسلة
                     </Button>
                   </CardContent>
@@ -290,20 +310,20 @@ export const Store: React.FC = () => {
             <div>
               <h5 className="font-semibold mb-4">روابط سريعة</h5>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">الرئيسية</a></li>
-                <li><a href="#" className="hover:text-primary">المنتجات</a></li>
-                <li><a href="#" className="hover:text-primary">من نحن</a></li>
-                <li><a href="#" className="hover:text-primary">اتصل بنا</a></li>
+                <li><Link to="/store" className="hover:text-primary">الرئيسية</Link></li>
+                <li><Link to="/store/products" className="hover:text-primary">المنتجات</Link></li>
+                <li><Link to="/store/about" className="hover:text-primary">من نحن</Link></li>
+                <li><Link to="/store/contact" className="hover:text-primary">اتصل بنا</Link></li>
               </ul>
             </div>
             
             <div>
               <h5 className="font-semibold mb-4">الفئات</h5>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">هواتف ذكية</a></li>
-                <li><a href="#" className="hover:text-primary">إكسسوارات</a></li>
-                <li><a href="#" className="hover:text-primary">إلكترونيات</a></li>
-                <li><a href="#" className="hover:text-primary">قطع غيار</a></li>
+                <li><Link to="/store/products?category=phones" className="hover:text-primary">هواتف ذكية</Link></li>
+                <li><Link to="/store/products?category=accessories" className="hover:text-primary">إكسسوارات</Link></li>
+                <li><Link to="/store/products?category=electronics" className="hover:text-primary">إلكترونيات</Link></li>
+                <li><Link to="/store/products?category=parts" className="hover:text-primary">قطع غيار</Link></li>
               </ul>
             </div>
             
